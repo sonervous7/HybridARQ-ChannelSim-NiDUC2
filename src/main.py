@@ -1,7 +1,7 @@
 from pipeline import Pipeline
 from error_correction_code import ErrorCorrectionCode
 def main():
-    image_path = "../data/input/sample.bmp"  # Ścieżka do obrazu wejściowego
+    image_path = "../data/input/sample1.bmp"  # Ścieżka do obrazu wejściowego
     output_path = "../data/output/output_image.bmp"  # Ścieżka do obrazu po transmisji
     pipeline = Pipeline(image_path=image_path, output_path=output_path)
     pipeline.run_image_transmission()

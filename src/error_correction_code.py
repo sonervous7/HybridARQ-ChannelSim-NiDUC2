@@ -3,14 +3,16 @@ import numpy as np
 
 
 class ErrorCorrectionCode:
-    def __init__(self, symbols=10): # Długość części korekcyjnej
+    def __init__(self, symbols): # Długość części korekcyjnej
         self.rs = RSCodec(symbols)
 
     def encode(self, data_bytes):
         print("Dane przed kodowaniem (RS):", data_bytes)
         encoded_data = self.rs.encode(data_bytes)
         # print("Dane po kodowaniu (RS):", encoded_data)
-        return encoded_data
+        data_length = len(data_bytes)
+        correction_data = encoded_data[data_length:]
+        return correction_data
 
     def decode(self, data_bytes):
         try:

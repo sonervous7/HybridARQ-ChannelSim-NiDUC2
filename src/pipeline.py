@@ -68,7 +68,7 @@ class Pipeline:
         choice = int(input("Twój wybór: "))
 
         if choice == 1:
-            self.error_correction_code = ErrorCorrectionCode(30)  # Liczba symboli korekcyjnych RS
+            self.error_correction_code = ErrorCorrectionCode(30)  # Liczba symboli korekcyjnych (długość kodu w bajtach) RS
         else:
             print("Niepoprawny wybór kodu korekcyjnego.")
             return False
@@ -118,19 +118,23 @@ class Pipeline:
                 if decoded_data is None:
 
                     # Kodowanie detekcyjne ponownie
-                    detected_data = self.error_detection_code.encode(packet)
-                    print("Dane po kodowaniu detekcyjnym:", detected_data)
+                    # detected_data = self.error_detection_code.encode(packet)
+                    # print("Dane po kodowaniu detekcyjnym:", detected_data)
 
                     # Kodowanie korekcyjne (Reed-Solomon)
-                    encoded_data = self.error_correction_code.encode(detected_data)
-                    print("Dane po kodowaniu korekcyjnym (RS):", encoded_data)
+                    correction_data = self.error_correction_code.encode(packet) # Koduje dane korekcyjne na podstawie oryginalnych danych
+                    print("Suma Kontrolna zakodowoana: ", correction_data)
 
-                    # Ponowna transmisja przez kanał z kodami zarówno detekcyjnymi jak i korekcyjnymi
-                    transmitted_data = self.channel.channel_transmit(encoded_data)
-                    print("Dane po transmisji przez kanał:", transmitted_data)
+                    # Transmisja samych kodów korekcyjnych
+                    transmitted_correction_codes = self.channel.channel_transmit(correction_data)
+                    print("Suma kontrolna po transmisji przez kanał:", transmitted_correction_codes)
+
+                    # Dodanie kodów korekcyjnych do całości
+                    combined_data = transmitted_data + correction_data
 
                     # Krok 4: Dekodowanie korekcyjne
-                    decoded_data = self.error_correction_code.decode(transmitted_data)
+                    decoded_data = self.error_correction_code.decode(combined_data)
+                    print(f"Dane po dekodowaniu korekcyjnym (bez kodów korekcyjnych): {decoded_data}")
                     if decoded_data is None:
                         print(f"Błąd korekcji Reed-Solomon dla pakietu {packet_num} przy próbie {retries}")
                         continue
@@ -158,8 +162,8 @@ class Pipeline:
                     print(f"Pakiet nr {packet_num} został odebrany poprawnie bez użycia kodów detekcyjnych")
 
             if not success:
-                # received_data.extend([0] * 64)
-                received_data.extend([random.randint(0, 255) for _ in range(64)])
+                # received_data.extend([0] * 64) # Tutaj było na czarno
+                received_data.extend([random.randint(0, 255) for _ in range(64)]) # Tutaj bardziej losowy jest szum
                 errors_detected += 1
                 print(f"Pakiet nr {packet_num} nie udało się poprawnie przesłać po 10 próbach.\n")
 
