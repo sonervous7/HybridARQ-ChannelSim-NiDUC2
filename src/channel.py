@@ -38,32 +38,19 @@ class Channel:
             byte_list.append(byte)
         return bytes(byte_list)
 
-
-
-    def channel_transmit(self, data):
-        # Przesyłanie danych przez kanał
-
-        if self.channel_type == 'BSC':
-            # Konwersja bajtów na bity przed transmisją
-            bit_data = self._bytes_to_bits(data)
-            # print("Dane w bitach przed transmisją:", bit_data)
-
-            # Przesyłanie bitów przez kanał
-            transmitted_bits = self.channel(bit_data)
-            # print("Dane w bitach po transmisji:", transmitted_bits)
-
-            # Konwersja bitów z powrotem na bajty
-            transmitted_data = self._bits_to_bytes(transmitted_bits)
-            # print("Dane po transmisji w bajtach:", transmitted_data)
-
-            return transmitted_data
+    def channel_transmit(self, data, as_bits=False):
+        """Przesyłanie danych przez kanał."""
+        if as_bits:
+            # Jeśli dane są w postaci bitowej
+            if self.channel_type == "BSC":
+                return list(self.channel(np.array(data)))  # komm obsługuje tablicę numpy
+            else:
+                return self.channel.transmit_bits(data)
         else:
-            return self.channel.transmit(data)
-
-
-
-
-
-
-
-
+            # Jeśli dane są w postaci bajtowej
+            if self.channel_type == "BSC":
+                bit_data = self._bytes_to_bits(data)
+                transmitted_bits = self.channel(bit_data)
+                return self._bits_to_bytes(transmitted_bits)
+            else:
+                return self.channel.transmit(data)

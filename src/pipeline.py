@@ -15,6 +15,21 @@ class Pipeline:
         self.error_detection_code = None
         self.error_correction_code = None
 
+    def select_type(self):
+        choice = 0
+        while choice != 1 and choice != 2:
+            print("Wybierz co chcesz transmitować:")
+            print("1. Symulacja transmisji bitów")
+            print("2. Symulacja transmisji obrazka")
+            choice = int(input("Twój wybór: "))
+
+            if choice == 1:
+                self.bit_array_transmission()
+            elif choice == 2:
+                self.run_image_transmission()
+            else:
+                print("Niepoprawny wybór, spróbuj ponownie")
+
     def select_channel(self):
         print("Wybierz kanał transmisji:")
         print("1. Binary Symmetric Channel (BSC)")
@@ -66,13 +81,71 @@ class Pipeline:
         print("Wybierz kod korekcyjny:")
         print("1. Reed-Solomon")
         choice = int(input("Twój wybór: "))
+        correction_number = int(input("Wpisz wybraną długość kodu korekcyjnego w bajtach: "))
 
         if choice == 1:
-            self.error_correction_code = ErrorCorrectionCode(30)  # Liczba symboli korekcyjnych (długość kodu w bajtach) RS
+            self.error_correction_code = ErrorCorrectionCode(correction_number)  # Liczba symboli korekcyjnych (długość kodu w bajtach) RS
         else:
             print("Niepoprawny wybór kodu korekcyjnego.")
             return False
         return True
+
+    def bit_array_transmission(self):
+        self.select_channel()
+        self.select_error_detection_code()
+        self.select_error_correction_code()
+
+        # Pobieranie tablicy bitów od użytkownika
+        print("Wprowadź tablicę bitów, oddzielając je spacjami (np. 1 0 1 0 1):")
+        bit_array = list(map(int, input().split()))
+        print("Oryginalne bity:", bit_array)
+
+        # Kodowanie detekcyjne
+        detected_bits = self.error_detection_code.encode_bits(bit_array)
+        print("Zakodowane bity detekcyjne:", detected_bits)
+
+        # Transmisja przez kanał
+        transmitted_bits = self.channel.channel_transmit(detected_bits, as_bits=True)
+        transmitted_bits = list(map(int, transmitted_bits))
+        print("Bity po transmisji przez kanał:", transmitted_bits)
+
+        # Dekodowanie detekcyjne
+        decoded_bits = self.error_detection_code.decode_bits(transmitted_bits)
+        print("Bity po dekodowaniu detekcyjnym:", decoded_bits)
+
+        if decoded_bits is None:
+            print("Błąd detekcji. Generowanie i retransmisja kodów korekcyjnych...")
+
+            # Kodowanie korekcyjne
+            correction_bits = self.error_correction_code.encode_bits(bit_array)
+            print("Kody korekcyjne:", correction_bits)
+
+            # Transmisja kodów korekcyjnych
+            transmitted_correction_bits = self.channel.channel_transmit(correction_bits, as_bits=True)
+            transmitted_correction_bits = list(map(int, transmitted_correction_bits))  # Konwersja NumPy do listy
+
+            print("Kody korekcyjne po transmisji:", transmitted_correction_bits)
+
+            # Połączenie danych i kodów korekcyjnych
+            combined_bits = transmitted_bits + transmitted_correction_bits
+            print("Połączone bity:", combined_bits)
+
+            # Dekodowanie korekcyjne
+            decoded_bits = self.error_correction_code.decode_bits(combined_bits, bit_array)
+            if decoded_bits is None:
+                print("Nie udało się poprawić danych nawet po korekcji!")
+                return
+
+        # Wyświetlanie ostatecznych wyników
+        print("Ostateczne zdekodowane bity:", decoded_bits)
+
+        # Porównanie oryginalnych i zdekodowanych bitów
+        if decoded_bits == bit_array:
+            print("Dane zostały poprawnie przesłane!")
+        else:
+            print("Niektóre dane zostały utracone lub zmodyfikowane.")
+
+
 
     def run_image_transmission(self):
         self.select_channel()
@@ -84,7 +157,9 @@ class Pipeline:
         pixel_data = data[54:]
         print("Uruchamianie symulacji transmisji obrazu...")
 
-        packets = [pixel_data[i : i + 64] for i in range(0, len(pixel_data), 64)]  # Dzielenie danych na pakiety 64-bajtowe
+        packets = [
+            pixel_data[i : i + 64] for i in range(0, len(pixel_data), 64)
+        ]  # Dzielenie danych na pakiety 64-bajtowe
         print(f"Rozmiar danych: {len(pixel_data)} bajtów")
         print(f"Liczba pakietów: {len(packets)}")
         retransmission_counts = [0] * 12  # Licznik transmisji za X razem
@@ -92,7 +167,6 @@ class Pipeline:
         received_data = bytearray(header)  # Inicjalizuj otrzymane dane nagłówkiem
 
         for packet_num, packet in enumerate(packets, start=1):
-
             print(f"\n--- Pakiet nr {packet_num} ---")
             print("Dane oryginalne:", packet)
 
@@ -116,13 +190,14 @@ class Pipeline:
                 # Dekodowanie detekcyjne - aby sprawdzić czy potrzebna jest retransmisja z kodami korekcyjnymi
                 decoded_data = self.error_detection_code.decode(transmitted_data)
                 if decoded_data is None:
-
                     # Kodowanie detekcyjne ponownie
                     # detected_data = self.error_detection_code.encode(packet)
                     # print("Dane po kodowaniu detekcyjnym:", detected_data)
 
                     # Kodowanie korekcyjne (Reed-Solomon)
-                    correction_data = self.error_correction_code.encode(packet) # Koduje dane korekcyjne na podstawie oryginalnych danych
+                    correction_data = self.error_correction_code.encode(
+                        packet
+                    )  # Koduje dane korekcyjne na podstawie oryginalnych danych
                     print("Suma Kontrolna zakodowoana: ", correction_data)
 
                     # Transmisja samych kodów korekcyjnych
@@ -148,11 +223,13 @@ class Pipeline:
                         if frame.checksum == self.error_detection_code.calculate_checksum(final_data):
                             print("Suma kontrolna jest poprawna.")
                             success = True
-                            retransmission_counts[retries+1] += 1
+                            retransmission_counts[retries + 1] += 1
                             received_data.extend(final_data)  # Dodajemy pakiet po transmisji do skumulowanych danych
                             print(f"Pakiet nr {packet_num} poprawnie odebrany przy próbie nr {retries + 1}.\n")
                         else:
-                            print(f"Błąd detekcji w pakiecie nr {packet_num} po transmisji - nieprawidłowa suma kontrolna.")
+                            print(
+                                f"Błąd detekcji w pakiecie nr {packet_num} po transmisji - nieprawidłowa suma kontrolna."
+                            )
                     else:
                         print(f"Błąd detekcji w pakiecie nr {packet_num} po transmisji.")
                 else:
@@ -163,7 +240,7 @@ class Pipeline:
 
             if not success:
                 # received_data.extend([0] * 64) # Tutaj było na czarno
-                received_data.extend([random.randint(0, 255) for _ in range(64)]) # Tutaj bardziej losowy jest szum
+                received_data.extend([random.randint(0, 255) for _ in range(64)])  # Tutaj bardziej losowy jest szum
                 errors_detected += 1
                 print(f"Pakiet nr {packet_num} nie udało się poprawnie przesłać po 10 próbach.\n")
 

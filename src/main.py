@@ -4,7 +4,7 @@ def main():
     image_path = "../data/input/sample1.bmp"  # Ścieżka do obrazu wejściowego
     output_path = "../data/output/output_image.bmp"  # Ścieżka do obrazu po transmisji
     pipeline = Pipeline(image_path=image_path, output_path=output_path)
-    pipeline.run_image_transmission()
+    pipeline.select_type()
 
 
 def test_no_errors():

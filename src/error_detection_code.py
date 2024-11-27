@@ -13,8 +13,36 @@ class ErrorDetectionCode(ABC):
         pass
 
     @abstractmethod
+    def encode_bits(self, bits):
+        pass
+
+    @abstractmethod
+    def decode_bits(self, bits):
+        pass
+
+    @abstractmethod
     def calculate_checksum(self, data):
         pass
+
+    @staticmethod
+    def bits_to_bytes(bit_array):
+        """Konwersja bitów na bajty."""
+        byte_array = bytearray()
+        for i in range(0, len(bit_array), 8):
+            byte = 0
+            for bit in bit_array[i:i + 8]:
+                byte = (byte << 1) | bit
+            byte_array.append(byte)
+        return bytes(byte_array)
+
+    @staticmethod
+    def bytes_to_bits(byte_array):
+        """Konwersja bajtów na bity."""
+        bit_array = []
+        for byte in byte_array:
+            for i in range(7, -1, -1):
+                bit_array.append((byte >> i) & 1)
+        return bit_array
 
 
 class ParityCode(ErrorDetectionCode):
@@ -28,6 +56,25 @@ class ParityCode(ErrorDetectionCode):
             return None
         original_data, parity_bit = data[:-1], data[-1]
         if sum(original_data) % 2 == parity_bit:
+            return original_data
+        else:
+            print("Błąd detekcji w kodzie parzystości.")
+            return None
+
+    def encode_bits(self, bit_array):
+        """Kodowanie detekcyjne dla bitów."""
+        parity_bit = sum(bit_array) % 2
+        return bit_array + [parity_bit]
+
+    def decode_bits(self, bit_array):
+        """Dekodowanie detekcyjne dla bitów."""
+        if not bit_array:
+            print("Błąd: brak danych do dekodowania w ParityCode.")
+            return None
+
+        original_data, parity_bit = bit_array[:-1], bit_array[-1]
+
+        if self.calculate_checksum(original_data) == parity_bit:
             return original_data
         else:
             print("Błąd detekcji w kodzie parzystości.")
@@ -56,6 +103,18 @@ class CRC8(ErrorDetectionCode):
             print("Błąd detekcji CRC8.")
             return None
 
+    def encode_bits(self, bit_array):
+        """Zakoduj tablicę bitów za pomocą CRC8."""
+        byte_data = self.bits_to_bytes(bit_array)
+        encoded_data = self.encode(byte_data)
+        return self.bytes_to_bits(encoded_data)
+
+    def decode_bits(self, bit_array):
+        """Dekoduj tablicę bitów za pomocą CRC8."""
+        byte_data = self.bits_to_bytes(bit_array)
+        decoded_data = self.decode(byte_data)
+        return self.bytes_to_bits(decoded_data) if decoded_data else None
+
     def calculate_checksum(self, data):
         return self.crc8_fun(data)
 
@@ -82,6 +141,18 @@ class CRC16(ErrorDetectionCode):
             print("Błąd detekcji CRC16.")
             return None
 
+    def encode_bits(self, bit_array):
+        """Zakoduj tablicę bitów za pomocą CRC16."""
+        byte_data = self.bits_to_bytes(bit_array)
+        encoded_data = self.encode(byte_data)
+        return self.bytes_to_bits(encoded_data)
+
+    def decode_bits(self, bit_array):
+        """Dekoduj tablicę bitów za pomocą CRC16."""
+        byte_data = self.bits_to_bytes(bit_array)
+        decoded_data = self.decode(byte_data)
+        return self.bytes_to_bits(decoded_data) if decoded_data else None
+
     def calculate_checksum(self, data):
         return self.crc16_fun(data)
 
@@ -91,7 +162,6 @@ class CRC32(ErrorDetectionCode):
         checksum = self.calculate_checksum(data)
         # Dołączamy sumę kontrolną jako 4 bajty
         return data + checksum.to_bytes(4, byteorder='big')
-
 
     def decode(self, data):
         # Oryginalne dane (wszystkie poza ostatnimi czterema bajtami)
@@ -104,6 +174,18 @@ class CRC32(ErrorDetectionCode):
         else:
             print("Błąd detekcji CRC32.")
             return None
+
+    def encode_bits(self, bit_array):
+        """Zakoduj tablicę bitów za pomocą CRC32."""
+        byte_data = self.bits_to_bytes(bit_array)
+        encoded_data = self.encode(byte_data)
+        return self.bytes_to_bits(encoded_data)
+
+    def decode_bits(self, bit_array):
+        """Dekoduj tablicę bitów za pomocą CRC32."""
+        byte_data = self.bits_to_bytes(bit_array)
+        decoded_data = self.decode(byte_data)
+        return self.bytes_to_bits(decoded_data) if decoded_data else None
 
     def calculate_checksum(self, data):
         return zlib.crc32(data)
