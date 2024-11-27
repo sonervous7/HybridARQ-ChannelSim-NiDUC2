@@ -1,4 +1,4 @@
-import numpy as np
+import random
 from channel import Channel
 from error_detection_code import ErrorDetectionCode, ParityCode, CRC8, CRC16, CRC32
 from error_correction_code import ErrorCorrectionCode
@@ -84,8 +84,10 @@ class Pipeline:
         pixel_data = data[54:]
         print("Uruchamianie symulacji transmisji obrazu...")
 
-        packets = [data[i : i + 64] for i in range(0, len(data), 64)]  # Dzielenie danych na pakiety 64-bajtowe
-        retransmission_counts = [0] * 11  # Licznik transmisji za X razem
+        packets = [pixel_data[i : i + 64] for i in range(0, len(pixel_data), 64)]  # Dzielenie danych na pakiety 64-bajtowe
+        print(f"Rozmiar danych: {len(pixel_data)} bajtów")
+        print(f"Liczba pakietów: {len(packets)}")
+        retransmission_counts = [0] * 12  # Licznik transmisji za X razem
         errors_detected = 0  # Liczba pakietów, które nie zostały poprawnie odebrane
         received_data = bytearray(header)  # Inicjalizuj otrzymane dane nagłówkiem
 
@@ -156,7 +158,8 @@ class Pipeline:
                     print(f"Pakiet nr {packet_num} został odebrany poprawnie bez użycia kodów detekcyjnych")
 
             if not success:
-                received_data.extend([0] * 64)
+                # received_data.extend([0] * 64)
+                received_data.extend([random.randint(0, 255) for _ in range(64)])
                 errors_detected += 1
                 print(f"Pakiet nr {packet_num} nie udało się poprawnie przesłać po 10 próbach.\n")
 
@@ -165,7 +168,7 @@ class Pipeline:
         print("Statystyka pakietów przesyłanych za X razem:")
         for i, count in enumerate(retransmission_counts[1:], start=1):
             print(f"{i}: {count}")
-        print(f"Pakiety przesłane powyżej 10 razy: {retransmission_counts[10]}")
+        print(f"Pakiety przesłane powyżej 10 razy: {retransmission_counts[10] + retransmission_counts[11]}")
 
         # Wyświetlanie statystyk kanału
         if isinstance(self.channel.channel, GilbertElliottChannel):

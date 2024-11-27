@@ -13,25 +13,27 @@ class GilbertElliottChannel:
         self.bad_state_count = 0  # Licznik czasu w stanie złym
 
     def transmit(self, data):
-        transmitted_data = []
-        for bit in data:
+        transmitted_data = bytearray()
+        for byte in data:
             if self.state == 'good':
                 self.good_state_count += 1
                 if random.random() < self.good_error_prob:
-                    transmitted_data.append(1 - bit)  # Przełącz bit, jeśli jest błąd
+                    corrupted_byte = byte ^ random.randint(1, 255)
+                    transmitted_data.append(corrupted_byte)  # Przełącz bit, jeśli jest błąd
                 else:
-                    transmitted_data.append(bit)
+                    transmitted_data.append(byte)
                 if random.random() < self.good_to_bad:
                     self.state = 'bad'
             else:  # Stan zły
                 self.bad_state_count += 1
                 if random.random() < self.bad_error_prob:
-                    transmitted_data.append(1 - bit)  # Przełącz bit, jeśli jest błąd
+                    corrupted_byte = byte ^ random.randint(1, 255)
+                    transmitted_data.append(corrupted_byte)  # Przełącz bit, jeśli jest błąd
                 else:
-                    transmitted_data.append(bit)
+                    transmitted_data.append(byte)
                 if random.random() < self.bad_to_good:
                     self.state = 'good'
-        return transmitted_data
+        return bytes(transmitted_data)
 
     def get_channel_statistics(self):
         total = self.good_state_count + self.bad_state_count
