@@ -1,10 +1,14 @@
 from pipeline import Pipeline
 from error_correction_code import ErrorCorrectionCode
+from src import plots
+
+
 def main():
     image_path = "../data/input/sample1.bmp"  # Ścieżka do obrazu wejściowego
     output_path = "../data/output/output_image.bmp"  # Ścieżka do obrazu po transmisji
     pipeline = Pipeline(image_path=image_path, output_path=output_path)
     pipeline.select_type()
+
 
 
 def test_no_errors():
@@ -20,6 +24,7 @@ def test_no_errors():
 
 
 if __name__ == "__main__":
+    plots.bar_plot_bsc()
     main()
     # test_no_errors()
 

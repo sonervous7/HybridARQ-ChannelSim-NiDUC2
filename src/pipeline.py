@@ -251,6 +251,9 @@ class Pipeline:
             print(f"{i}: {count}")
         print(f"Pakiety przesłane powyżej 10 razy: {retransmission_counts[10] + retransmission_counts[11]}")
 
+        success_rate = (len(packets) - errors_detected) / errors_detected if errors_detected != 0 else 1
+        print(f"Success Rate: {success_rate * 100}%")
+
         # Wyświetlanie statystyk kanału
         if isinstance(self.channel.channel, GilbertElliottChannel):
             good_percentage, bad_percentage = self.channel.channel.get_channel_statistics()
