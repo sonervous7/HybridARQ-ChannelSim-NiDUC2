@@ -1,5 +1,10 @@
 from PIL import Image
 import io
+import logging
+
+# Konfiguracja logowania informacji
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class ImageHandler:
@@ -9,11 +14,13 @@ class ImageHandler:
     def image_to_bytes(self):
         """Konwertuje obraz na bajty."""
         with Image.open(self.image_path) as img:
-            print(f"Wymiary oryginalnego obrazu: {img.size}, Format: {img.format}")  # debug print
+            logger.info(
+                f"Wymiary oryginalnego obrazu: {img.size}, Format: {img.format}"
+            )  # debug print
             with io.BytesIO() as byte_io:
                 img.save(byte_io, format="bmp")  # Zapis obrazu jako png
                 data = byte_io.getvalue()  # debug statement
-                print(f"Rozmiar danych BMP: {len(data)} bajtów")  # debug print
+                logger.info(f"Rozmiar danych BMP: {len(data)} bajtów")  # debug print
                 return byte_io.getvalue()  # Zwraca bajty obrazu
 
     # def image_to_bytes(self):

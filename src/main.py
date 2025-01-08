@@ -1,6 +1,10 @@
 from pipeline import Pipeline
 from error_correction_code import ErrorCorrectionCode
-from src import plots
+import logging
+
+# Konfiguracja logowania informacji
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -10,24 +14,21 @@ def main():
     pipeline.select_type()
 
 
-
 def test_no_errors():
     ecc = ErrorCorrectionCode(symbols=10)
-    original_data = b'Test data for Reed-Solomon coding.'
+    original_data = b"Test data for Reed-Solomon coding."
     encoded_data = ecc.encode(original_data)
     decoded_data = ecc.decode(encoded_data)
 
     if decoded_data == original_data:
-        print("Test bez błędów: Sukces")
+        logger.info("Test bez błędów: Sukces")
     else:
-        print("Test bez błędów: Niepowodzenie")
+        logger.error("Test bez błędów: Niepowodzenie")
 
 
 if __name__ == "__main__":
-    plots.bar_plot_bsc()
+    print(
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓███████▓▒░ ░▒▓███████▓▒░ ░▒▓█▓▒░░▒▓███████▓▒░        ░▒▓██████▓▒░ ░▒▓███████▓▒░  ░▒▓██████▓▒░\n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ \n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░\n░▒▓████████▓▒░ ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓███████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓████████▓▒░░▒▓███████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░\n░▒▓█▓▒░░▒▓█▓▒░   ░▒▓█▓▒░    ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░\n░▒▓█▓▒░░▒▓█▓▒░   ░▒▓█▓▒░    ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░\n░▒▓█▓▒░░▒▓█▓▒░   ░▒▓█▓▒░    ░▒▓███████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓███████▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ░▒▓██████▓▒░\n                                                                                                                  ░▒▓█▓▒░\n                                                                                                                   ░▒▓██▓▒░   "
+    )
     main()
     # test_no_errors()
-
-
-
-
