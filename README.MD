@@ -18,9 +18,8 @@ The required Python libraries are listed in the `requirements.txt` file.
 ### 1. Clone the repository
 Clone this repository to your local machine using the following command:
 ```bash
-git clone <repository_url>
+git clone https://github.com/sonervous7/HybridARQ-ChannelSim-NiDUC2
 ```
-Replace `<repository_url>` with the actual URL of the repository.
 
 ### 2. Create a virtual environment
 Navigate to the project directory and create a virtual environment:
@@ -52,19 +51,23 @@ python main.py
 
 ## Project Structure
 - `main.py`: Entry point of the program.
-- `channel/`: Contains channel implementations (e.g., BSC, Gilbert-Elliott).
+- `channel/`: General class handling different channels.
+- `gilbert_elliott_channel/`: Implementation of the Gilbert-Elliott channel.
 - `error_detection_code/`: Error detection code implementations (CRC8, CRC16, CRC32, parity check).
 - `error_correction_code/`: Reed-Solomon error correction code.
 - `image_handler/`: Handles image loading and processing.
 - `frame/`: Defines the data structure for transmitting packets.
+- `column_plots/`: Class responsible for creating bar plots.
+- `pipeline/`: Core logic for managing data transmission workflows.
+- `data/input/`: Contains sample files, including `sample1.bmp` for transmission simulation.
 - `requirements.txt`: List of Python libraries required to run the project.
 
 ## Usage Notes
 - Ensure you have installed all dependencies listed in `requirements.txt`.
-- Configure simulation parameters (e.g., channel type, error probabilities) in the program prompts or by editing `main.py` as needed.
+- Configure simulation parameters (e.g., channel type, error probabilities) in the program prompts.
 
 ## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the GNU General Public License v3.0. See the `LICENSE` file for details.
 
 ---
 If you encounter any issues, feel free to contact the project contributors.
