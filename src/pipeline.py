@@ -5,9 +5,9 @@ from error_correction_code import ErrorCorrectionCode
 from image_handler import ImageHandler
 from gilbert_elliott_channel import GilbertElliottChannel
 from frame import Frame
+from src.column_plots import PlotGenerator
 import logging
 
-from src.column_plots import PlotGenerator
 
 # Konfiguracja logowania informacji
 logging.basicConfig(level=logging.INFO)
