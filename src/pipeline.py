@@ -7,6 +7,8 @@ from gilbert_elliott_channel import GilbertElliottChannel
 from frame import Frame
 import logging
 
+from src.column_plots import PlotGenerator
+
 # Konfiguracja logowania informacji
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -293,7 +295,7 @@ class Pipeline:
                     received_data.extend(decoded_data)
                     retransmission_counts[retries] += 1
                     logger.info(
-                        f"Pakiet nr {packet_num} został odebrany poprawnie bez użycia kodów detekcyjnych"
+                        f"Pakiet nr {packet_num} został odebrany poprawnie bez użycia kodów korekcyjnych"
                     )
 
             if not success:
@@ -306,6 +308,8 @@ class Pipeline:
                     f"Pakiet nr {packet_num} nie udało się poprawnie przesłać po 10 próbach.\n"
                 )
 
+
+
         # Wyświetlanie wyników
         logger.info(f"\nIlość pakietów przepuszczonych z błędem: {errors_detected}")
         logger.info("Statystyka pakietów przesyłanych za X razem:")
@@ -315,7 +319,7 @@ class Pipeline:
             f"Pakiety przesłane powyżej 10 razy: {retransmission_counts[10] + retransmission_counts[11]}"
         )
 
-        success_rate = (len(packets) - errors_detected) / errors_detected if errors_detected != 0 else 1
+        success_rate = (len(packets) - errors_detected) / len(packets)
         print(f"Success Rate: {success_rate * 100}%")
 
         # Wyświetlanie statystyk kanału
@@ -334,3 +338,6 @@ class Pipeline:
         # Konwersja odebranych danych z powrotem do obrazu i zapisanie
         self.image_handler.bytes_to_image(bytes(received_data), self.output_path)
         logger.info(f"Obraz został zapisany jako {self.output_path}")
+
+        plot_generator = PlotGenerator()
+        plot_generator.plot_transmissions(retransmission_counts)
