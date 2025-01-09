@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import logging
 
+
 class PlotGenerator:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
@@ -22,6 +23,6 @@ class PlotGenerator:
         plt.tight_layout()
 
         # Zapis wykresu do pliku lub wyświetlenie
-        plt.savefig("transmissions_distribution.png")
+        plt.savefig("../data/output/transmissions_distribution.png")
         plt.show()
         self.logger.info("Wykres został wygenerowany i zapisany jako 'transmissions_distribution.png'")
