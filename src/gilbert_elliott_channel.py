@@ -19,7 +19,9 @@ class GilbertElliottChannel:
                 self.good_state_count += 1
                 if random.random() < self.good_error_prob:
                     corrupted_byte = byte ^ random.randint(1, 255)
-                    transmitted_data.append(corrupted_byte)  # Przełącz bit, jeśli jest błąd
+                    transmitted_data.append(
+                        corrupted_byte
+                    )  # Przełącz bit, jeśli jest błąd
                 else:
                     transmitted_data.append(byte)
                 if random.random() < self.good_to_bad:
@@ -28,7 +30,9 @@ class GilbertElliottChannel:
                 self.bad_state_count += 1
                 if random.random() < self.bad_error_prob:
                     corrupted_byte = byte ^ random.randint(1, 255)
-                    transmitted_data.append(corrupted_byte)  # Przełącz bit, jeśli jest błąd
+                    transmitted_data.append(
+                        corrupted_byte
+                    )  # Przełącz bit, jeśli jest błąd
                 else:
                     transmitted_data.append(byte)
                 if random.random() < self.bad_to_good:
@@ -59,6 +63,8 @@ class GilbertElliottChannel:
 
     def get_channel_statistics(self):
         total = self.good_state_count + self.bad_state_count
-        good_state_percentage = (self.good_state_count / total) * 100 if total > 0 else 0
+        good_state_percentage = (
+            (self.good_state_count / total) * 100 if total > 0 else 0
+        )
         bad_state_percentage = (self.bad_state_count / total) * 100 if total > 0 else 0
         return good_state_percentage, bad_state_percentage
